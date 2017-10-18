@@ -2,7 +2,7 @@
 
 ## Milestones
 * Download and store historical stock data (since year 2000).
-* Automate the download of new data to download evey hour(timeframe can vary)
+* Automate the download of new data to evey hour(timeframe can vary)
 * Build a generic Rest-API in Python to retrieve all the analysis made y the system
 * Build an engine in Pyhton to analyze historic data and come up with trends for specific timeframes
 * Automate analysis to run (and deploy to surge) several times everyday
