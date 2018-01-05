@@ -1,15 +1,17 @@
-
+const WebSocket = require('ws');
 const millisecondsInAnHour = 360000000000;
 
 class Engine {
     constructor() {
         this.interval = null;
-        this.analize = this.analize.bind(this);
+        this.websocketClient = new WebSocket(`ws://${host}:${port}`);
+        this.websocketClient.on('message', this.handleWebSocketMessage);
+        this.analyze = this.analyze.bind(this);
     }
 
     start() {
-        this.interval = setInterval(this.analize, millisecondsInAnHour)
-        this.analize();
+        //this.interval = setInterval(this.analyze, millisecondsInAnHour);
+        this.analyze();
     }
 
     stop() {
@@ -19,7 +21,7 @@ class Engine {
     /**
      * todo: Use https://iextrading.com/developer/docs
      */
-    analize() {
+    analyze() {
     }
 }
 

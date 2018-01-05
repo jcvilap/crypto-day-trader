@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/jcvilap/artificial-trader/issues"
   },
-  "homepage": "https://github.com/jcvilap/artificial-trader#readme"
+  "homepage": "https://github.com/jcvilap/artificial-trader#readme",
+  "dependencies": {
+    "ws": "^3.3.3"
+  }
 }
