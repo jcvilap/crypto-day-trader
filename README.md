@@ -1,15 +1,21 @@
 # artificial-trader
 
 ## Milestones
+### Server
 - [ ] Set up a NodeJS project and deploy it using heroku
 - [ ] Setup a mongo DB in mLab and connect in NodeJs 
-- [ ] Integrate API with Yahoo Finance (use YQL)
-- [ ] Automate the download of new data to evey day(timeframe can vary)
-- [ ] Build a generic Rest-API in NodeJS to retrieve all the analysis made in the system
-- [ ] Build an engine to analyze data and come up with predictions for specific timeframes
-- [ ] Automate analysis to run (and deploy results to surge) several times a day
-- [ ] Create support for running 'What if' situations to the system 'learn' from every iteraiton 
-- [ ] Study and focus on failures rather than successes and also learn from them
-- [ ] Create a UI for results and visualizations
+- [ ] Connect to GDAX. Handle security based on GDAX account
+- [ ] Listen to changes on crypto-currencies
+- [ ] Enable Buy/Sell, Taker/Maker actions
+- [ ] Build an engine to analyze data and come up with limits for specific timeframes
+- [ ] Alert via email/native notifications when a transaction happened
+### Client
+- [ ] Enable new users to enter their Coinbase credentials
+- [ ] Enable user to set the percentage-risk for automated trading
+- [ ] Enable new users to start/stop their artificial traders
+- [ ] Connect via Websockets to show transactions realtime
+- [ ] Show statistics, history and performance 
 
-More details to come
+## Additional thoughts:
+- Create both Desktop and Web versions and share the code as much as possible
+- Enable `artificial-trader` for fixed set of currencies instead of all3
