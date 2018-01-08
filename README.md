@@ -8,11 +8,12 @@
 - [ ] Listen to changes on crypto-currencies
 - [ ] Enable Buy/Sell, Taker/Maker actions
 - [ ] Build an engine to analyze data and come up with limits for specific timeframes
+- [ ] Perform transactions based on analysis
 - [ ] Alert via email/native notifications when a transaction happened
 ### Client
 - [ ] Enable new users to enter their Coinbase credentials
 - [ ] Enable user to set the percentage-risk for automated trading
-- [ ] Enable new users to start/stop their artificial traders
+- [ ] Enable user to start/stop their artificial traders
 - [ ] Connect via Websockets to show transactions realtime
 - [ ] Show statistics, history and performance 
 
