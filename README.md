@@ -19,4 +19,4 @@
 
 ## Additional thoughts:
 - Create both Desktop and Web versions and share the code as much as possible
-- Enable `artificial-trader` for fixed set of currencies instead of all3
+- Enable `artificial-trader` for fixed set of crypto-currencies instead of all
