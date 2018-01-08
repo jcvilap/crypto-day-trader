@@ -7,7 +7,7 @@
 - [ ] Connect to GDAX. Handle security based on GDAX account
 - [ ] Listen to changes on crypto-currencies
 - [ ] Enable Buy/Sell, Taker/Maker actions
-- [ ] Build an engine to analyze data and come up with limits for specific timeframes
+- [ ] Build an engine to analyze data and come up with limits for specific timeframes. Identify walls an use them to come up with smart limits
 - [ ] Perform transactions based on analysis
 - [ ] Alert via email/native notifications when a transaction happened
 ### Client
