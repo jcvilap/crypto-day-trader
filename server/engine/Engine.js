@@ -1,11 +1,10 @@
 const WebSocket = require('ws');
-const {WS_IEX_API_URL} = require('../config');
-const millisecondsInAnHour = 360000000000;
+const {WS_API_URL} = require('../config');
 
 class Engine {
     constructor() {
         this.interval = null;
-        this.wsClient = new WebSocket(WS_IEX_API_URL);
+        this.wsClient = new WebSocket(WS_API_URL);
 
         this.analyze = this.analyze.bind(this);
         this.handleWebSocketConnect = this.handleWebSocketConnect.bind(this);

@@ -2,7 +2,7 @@
   "name": "artificial-trader",
   "version": "1.0.0",
   "description": "Minimal trading predictor engine written in NodeJs",
-  "main": "server/index",
+  "main": "index",
   "scripts": {
     "start": "node server"
   },
@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/jcvilap/artificial-trader/issues"
   },
-  "homepage": "https://github.com/jcvilap/artificial-trader#readme",
+  "homepage": "artificialtrader.surge.sh",
   "dependencies": {
     "ws": "^3.3.3"
   }

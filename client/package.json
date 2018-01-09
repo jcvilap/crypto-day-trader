@@ -1,0 +1,33 @@
+{
+  "name": "artificial-trader",
+  "version": "1.0.0",
+  "description": "Minimal trading predictor engine written in NodeJs",
+  "main": "index",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcvilap/artificial-trader.git"
+  },
+  "author": "Julio Vila",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcvilap/artificial-trader/issues"
+  },
+  "homepage": "artificialtrader.surge.sh",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "html-webpack-plugin": "^2.30.1",
+    "loader": "^2.1.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.0"
+  }
+}
