@@ -2,10 +2,11 @@
   "name": "artificial-trader",
   "version": "1.0.0",
   "description": "Minimal trading predictor engine written in NodeJs",
-  "main": "index",
+  "main": "server",
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "webpack -p"
+    "start": "node",
+    "start-client": "webpack-dev-server --config client/webpack.config.js",
+    "build-client": "webpack -p --config client/webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,12 @@
   },
   "homepage": "artificialtrader.surge.sh",
   "dependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
     "babel": "^6.23.0",
+    "ws": "^3.3.3",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^6.24.1",
