@@ -1,5 +1,8 @@
 # artificial-trader
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jcvilap/artificial-trader)
+
+
 ## Milestones
 ### Server
 - [ ] Set up a NodeJS project and deploy it using heroku
