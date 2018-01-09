@@ -2,9 +2,9 @@
   "name": "artificial-trader",
   "version": "1.0.0",
   "description": "Minimal trading predictor engine written in NodeJs",
-  "main": "index",
+  "main": "./index.js",
   "scripts": {
-    "start": "node server"
+    "start": "node"
   },
   "repository": {
     "type": "git",
