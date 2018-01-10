@@ -5,9 +5,10 @@
 
 ## Milestones
 ### Server
-- [ ] Set up a NodeJS project and deploy it using heroku
+- [x] Set up a NodeJS project and deploy it using heroku
 - [ ] Setup a mongo DB in mLab and connect in NodeJs 
-- [ ] Connect to GDAX. Handle security based on GDAX account
+- [ ] Connect to GDAX sandboxes for development. Configure production environment 
+- [ ] Handle security based on GDAX/Coinbase account
 - [ ] Listen to changes on crypto-currencies
 - [ ] Enable Buy/Sell, Taker/Maker actions
 - [ ] Build an engine to analyze data and come up with limits for specific timeframes. Identify walls an use them to come up with smart limits

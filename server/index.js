@@ -1,5 +1,5 @@
 const {createServer} = require('http');
-const {port} = require('./config');
+const {PORT} = require('./config');
 const Engine = require('./engine/Engine');
 
 class Server {
@@ -17,12 +17,15 @@ class Server {
         process.on('SIGTERM', this.handleExit);
     }
 
+    /**
+     * After successfully listening to a port, start the engine
+     */
     start() {
-        this.server.listen(port, () => {
-            //Start engine
+        this.server.listen(PORT, () => {
+            // Start engine
             this.engine.start();
             // Log port
-            console.info('listening on', port);
+            console.info('listening on', PORT);
         })
     }
 
