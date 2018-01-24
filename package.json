@@ -2,12 +2,12 @@
   "name": "artificial-trader",
   "version": "1.0.0",
   "description": "Minimal trading predictor engine written in NodeJs",
-  "main": "server",
+  "main": "server/src",
   "scripts": {
     "start": "npm run start-client & npm run start-server",
-    "start-server": "node server",
-    "start-client": "webpack-dev-server --config=client/webpack.config.js",
-    "build-client": "webpack -p --config ./client/webpack.config.js"
+    "start-server": "node server/src",
+    "start-client": "webpack-dev-server --config ./client/webpack.config.js",
+    "build-client": "webpack -p --config=client/webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
+    "@types/node": "^9.3.0",
     "babel": "^6.23.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -32,7 +33,10 @@
     "gdax": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
     "loader": "^2.1.1",
+    "nodemon": "^1.14.11",
     "request": "^2.83.0",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.10.0",
     "ws": "^3.3.3"
