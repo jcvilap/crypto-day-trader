@@ -1,4 +1,4 @@
-import Product from "../Product";
+import Product from "../Product/CryptoProduct";
 import {OrderStatus, OrderType} from "../../enums";
 
 class Order {

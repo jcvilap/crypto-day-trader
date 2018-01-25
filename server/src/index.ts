@@ -1,9 +1,9 @@
-import {createServer, HttpServer} from 'http';
+import {createServer, Server} from 'http';
 import {PORT} from './config';
 import Engine from './engine/Engine';
 
-class Server {
-    public server: HttpServer = createServer();
+class App {
+    public server: Server = createServer();
     public engine: Engine = new Engine();
 
     constructor() {
@@ -31,4 +31,4 @@ class Server {
     }
 }
 
-export default new Server();
+export default new App();

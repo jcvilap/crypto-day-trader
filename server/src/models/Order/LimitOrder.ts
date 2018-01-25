@@ -1,4 +1,4 @@
-import Product from "../Product";
+import Product from "../Product/CryptoProduct";
 import Order from "./Order";
 
 class LimitOrder extends Order{
