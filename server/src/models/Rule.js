@@ -2,4 +2,4 @@ class Rule {
 
 }
 
-export default Rule;
+module.exports = Rule;

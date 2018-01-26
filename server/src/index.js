@@ -1,12 +1,12 @@
-import {createServer} from 'http';
-import {PORT} from './config';
-import Engine from './engine/CryptoEngine';
+const {createServer} = require('http');
+const {PORT} = require('./config');
+const CryptoEngine = require('./engine/CryptoEngine');
 
 class App {
-    public server = createServer();
-    public engine = new Engine();
-
     constructor() {
+        this.server = createServer();
+        this.cryptoEngine = new CryptoEngine();
+
         this.handleExit = this.handleExit.bind(this);
         this.registerEvents();
         this.start();
@@ -22,7 +22,7 @@ class App {
     start() {
         this.server.listen(PORT, () => {
             // Start engine
-            this.engine.start().then(() => console.info('Engine started on port', PORT));
+            this.cryptoEngine.start().then(() => console.info('Engine started on port', PORT));
         })
     }
 
@@ -31,4 +31,4 @@ class App {
     }
 }
 
-export default new App();
+module.exports = new App();

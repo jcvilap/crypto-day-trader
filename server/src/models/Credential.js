@@ -1,8 +1,8 @@
 class Credential {
-    public domain: string;
-    public username: string;
-    public password: string;
-    public confirmed: boolean;
+    domain;
+    username;
+    password;
+    confirmed;
 }
 
-export default Credential;
+module.exports = Credential;

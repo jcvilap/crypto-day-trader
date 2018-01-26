@@ -1,8 +1,8 @@
-import CryptoOrder from "./CryptoOrder";
+const CryptoOrder = require('./CryptoOrder');
 
 class CryptoStopOrder extends CryptoOrder{
     stopProduct;
     stopPrice;
 }
 
-export default CryptoStopOrder;
+module.exports = CryptoStopOrder;

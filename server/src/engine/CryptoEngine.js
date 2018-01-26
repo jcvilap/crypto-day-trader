@@ -1,11 +1,10 @@
-import {PublicClient} from 'gdax';
-import {TimeRange} from '../enums';
-import {CryptoProduct} from "../models";
+const {PublicClient, WebsocketClient} = require('gdax');
+const {CryptoProduct} = require( '../models');
 
 class Engine {
     constructor() {
         this.publicClient = new PublicClient();
-        this.wsClient = null;
+        this.wsClient = new WebsocketClient();
         this.products = null;
 
         this.handleWsMessage = this.handleWsMessage.bind(this);
@@ -49,7 +48,7 @@ class Engine {
      * Connects to GDAX feeds and spins off the analysis
      * @param {Array<CryptoProduct>} products
      */
-    connectToFeeds(products: Array<CryptoProduct>) {
+    connectToFeeds(products) {
 
     }
 
@@ -65,9 +64,9 @@ class Engine {
         console.error(error);
     }
 
-    handleWsClose() {
-
+    handleWsClose(error) {
+        console.error(error);
     }
 }
 
-export default Engine;
+module.exports = Engine;

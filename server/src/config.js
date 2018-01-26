@@ -12,4 +12,4 @@ const URLS = {
     }
 };
 
-export {PORT, URLS};
+module.exports = {PORT, URLS};

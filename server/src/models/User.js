@@ -5,4 +5,4 @@ class User {
     public credentials;
 }
 
-export default User;
+module.exports = User;

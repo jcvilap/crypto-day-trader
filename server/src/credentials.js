@@ -8,9 +8,9 @@
  * @type {string}
  */
 
-const GDAX_API_URL = 'https://api-public.sandbox.gdax.com';
-const GDAX_API_WS_FEED = 'wss://ws-feed-public.sandbox.gdax.com';
-const GDAX_API_KEY = 'bc1adc34cc207c8be7c06485283e720e';
-const GDAX_API_PASSPHRASE = '7x4zy4vwmcr';
+const GDAX_API_URL = '';
+const GDAX_API_WS_FEED = '';
+const GDAX_API_KEY = '';
+const GDAX_API_PASSPHRASE = '';
 
-export {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_API_KEY, GDAX_API_PASSPHRASE};
+module.exports = {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_API_KEY, GDAX_API_PASSPHRASE};

@@ -2,4 +2,4 @@ class Strategy {
 
 }
 
-export default Strategy;
+module.exports = Strategy;

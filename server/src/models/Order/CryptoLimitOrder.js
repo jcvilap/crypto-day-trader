@@ -1,8 +1,8 @@
-import CryptoOrder from "./CryptoOrder";
+const CryptoOrder = require('./CryptoOrder');
 
 class LimitOrder extends CryptoOrder {
     limitProduct;
     limitPrice;
 }
 
-export default LimitOrder;
+module.exports = LimitOrder;

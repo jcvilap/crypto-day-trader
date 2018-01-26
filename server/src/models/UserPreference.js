@@ -4,4 +4,4 @@ class UserPreference {
     ownedRules;
 }
 
-export default UserPreference;
+module.exports = UserPreference;

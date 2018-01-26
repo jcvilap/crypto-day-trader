@@ -5,4 +5,4 @@ class Order {
     status;
 }
 
-export default Order;
+module.exports = Order;
