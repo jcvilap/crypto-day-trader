@@ -1,4 +1,3 @@
-"use strict";
 /**
  * This file need to be copied once manualy into the server and should not be uploaded to Github for
  * security purposes
@@ -8,6 +7,10 @@
  *
  * @type {string}
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var GDAX_API_KEY = 'bc1adc34cc207c8be7c06485283e720e';
-exports.GDAX_API_KEY = GDAX_API_KEY;
+
+const GDAX_API_URL = 'https://api-public.sandbox.gdax.com';
+const GDAX_API_WS_FEED = 'wss://ws-feed-public.sandbox.gdax.com';
+const GDAX_API_KEY = 'bc1adc34cc207c8be7c06485283e720e';
+const GDAX_API_PASSPHRASE = '7x4zy4vwmcr';
+
+export {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_API_KEY, GDAX_API_PASSPHRASE};

@@ -1,8 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Credential = (function () {
-    function Credential() {
-    }
-    return Credential;
-}());
-exports.default = Credential;
+class Credential {
+    public domain: string;
+    public username: string;
+    public password: string;
+    public confirmed: boolean;
+}
+
+export default Credential;

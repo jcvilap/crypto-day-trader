@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var PORT = 1111;
-exports.PORT = PORT;
-var URLS = {
+const PORT = 1111;
+const URLS = {
     development: {
         GDAX_REST_API: 'https://api-public.sandbox.gdax.com',
         GDAX_WS_FEED: 'wss://ws-feed-public.sandbox.gdax.com',
@@ -14,4 +11,5 @@ var URLS = {
         GDAX_FIX_API: 'tcp+ssl://fix.gdax.com:4198'
     }
 };
-exports.URLS = URLS;
+
+export {PORT, URLS};

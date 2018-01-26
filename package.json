@@ -24,7 +24,6 @@
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@types/node": "^9.3.0",
     "babel": "^6.23.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -35,8 +34,6 @@
     "loader": "^2.1.1",
     "nodemon": "^1.14.11",
     "request": "^2.83.0",
-    "ts-node": "^4.1.0",
-    "typescript": "^2.6.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.10.0",
     "ws": "^3.3.3"

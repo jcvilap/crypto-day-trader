@@ -1,14 +1,12 @@
-import {PublicClient, WebsocketClient} from 'gdax';
+import {PublicClient} from 'gdax';
 import {TimeRange} from '../enums';
 import {CryptoProduct} from "../models";
 
 class Engine {
-    public cryptoPublicClient: PublicClient;
-    public cryptoWsClient: WebsocketClient;
-    public cryptoProducts: Array<CryptoProduct>;
-
     constructor() {
-        this.cryptoPublicClient = new PublicClient();
+        this.publicClient = new PublicClient();
+        this.wsClient = null;
+        this.products = null;
 
         this.handleWsMessage = this.handleWsMessage.bind(this);
         this.handleWsMessage = this.handleWsError.bind(this);
@@ -22,34 +20,34 @@ class Engine {
     async start() {
         try {
             // Get a list of available USD based products for trading
-            this.cryptoProducts = await this.cryptoPublicClient.getProducts();
+            this.products = await this.publicClient.getProducts();
             // For now, filter out non-USD products
             //products = products
 
-            console.info(JSON.stringify(this.cryptoProducts, null, 2));
+            console.info(JSON.stringify(this.products, null, 2));
         } catch (error) {
             console.error(error);
         }
 
         // Register wsClient events
-        this.cryptoWsClient.on('message', this.handleWsMessage);
-        this.cryptoWsClient.on('error', this.handleWsError);
-        this.cryptoWsClient.on('close', this.handleWsClose);
+        this.wsClient.on('message', this.handleWsMessage);
+        this.wsClient.on('error', this.handleWsError);
+        this.wsClient.on('close', this.handleWsClose);
     }
 
     /**
      * Gets product(s) history. Only triggered once on start.
      * @param {TimeRange} range
-     * @param {Array<Product>} products
+     * @param {Array<CryptoProduct>} products
      * @returns {any} History records ready for analysis
      */
-    getHistory(range: TimeRange, products: Array<CryptoProduct>): any {
+    getHistory(range, products) {
 
     }
 
     /**
      * Connects to GDAX feeds and spins off the analysis
-     * @param {Array<Product>} products
+     * @param {Array<CryptoProduct>} products
      */
     connectToFeeds(products: Array<CryptoProduct>) {
 
@@ -59,11 +57,11 @@ class Engine {
      * Based on a new feed, analyse the action to take, if any.
      * @param feed
      */
-    handleWsMessage(feed: any) {
+    handleWsMessage(feed) {
         console.log(JSON.stringify(feed, null, 2))
     }
 
-    handleWsError(error: any) {
+    handleWsError(error) {
         console.error(error);
     }
 
