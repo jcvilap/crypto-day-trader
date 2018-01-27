@@ -1,16 +1,23 @@
 /**
- * This file need to be copied once manualy into the server and should not be uploaded to Github for
- * security purposes
- * TODO:
- *
- * CHeck if each user needs a new API credentials. If they do then we need to move this into Mongo
- *
+ * Change this key to move from SANDBOX(test env) to LIVE(production)
  * @type {string}
  */
+const ENV_KEY = 'SANDBOX';
+const ENV = {
+    SANDBOX: {
+        GDAX_API_URL: 'https://api-public.sandbox.gdax.com',
+        GDAX_API_WS_FEED: 'wss://ws-feed-public.sandbox.gdax.com',
+        GDAX_CREDENTIALS: null
+    },
+    LIVE: {
+        GDAX_API_URL: 'https://api.gdax.com',
+        GDAX_API_WS_FEED: 'wss://ws-feed.gdax.com',
+        GDAX_CREDENTIALS: {
+            key: '27eec1262177c472c92cc406923cbc88',
+            secret: '+feHzSdGpDFGyB7wCZJmT8vQ4XlKgKT9Zap6NuNL34Fy5f6dIbNwLmmDCFxBsQJsEGinIZemDC31waB8pv2vYw==',
+            passphrase: '540801'
+        }
+    }
+};
 
-const GDAX_API_URL = '';
-const GDAX_API_WS_FEED = '';
-const GDAX_API_KEY = '';
-const GDAX_API_PASSPHRASE = '';
-
-module.exports = {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_API_KEY, GDAX_API_PASSPHRASE};
+module.exports = ENV[ENV_KEY];

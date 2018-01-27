@@ -25,6 +25,11 @@
 - [ ] Connect via Websockets to show transactions realtime
 - [ ] Show statistics, history and performance 
 ## Docs
+### 3rd Party APIs
+- Stocks feed: [IEX Trading](https://iextrading.com/developer/)
+- Stocks order management: [Robinhood's Private API](https://api.robinhood.com/)
+- Crypto-currencies feed and order management: [GDAX Websocket Client](https://github.com/coinbase/gdax-node#websocket-client)
+
 ### Rules
 I define a `Rule` as a single instance of multiple trading strategies to be used by the `Engine`. Rules can be defined by the user and will be stored in the Mongo instance
 ######Attributes // TODO

@@ -1,15 +1,15 @@
-const {PublicClient, WebsocketClient} = require('gdax');
-const {CryptoProduct} = require( '../models');
+const {AuthenticatedClient, WebsocketClient} = require('gdax');
+const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../credentials');
 
 class Engine {
     constructor() {
-        this.publicClient = new PublicClient();
-        this.wsClient = new WebsocketClient();
+        this.client = null;
+        this.wsClient = null;
         this.products = null;
 
         this.handleWsMessage = this.handleWsMessage.bind(this);
-        this.handleWsMessage = this.handleWsError.bind(this);
-        this.handleWsMessage = this.handleWsClose.bind(this);
+        this.handleWsError = this.handleWsError.bind(this);
+        this.handleWsClose = this.handleWsClose.bind(this);
     }
 
     /**
@@ -18,20 +18,41 @@ class Engine {
      */
     async start() {
         try {
+            // Create HTTP client
+            this.client = this.createClient();
             // Get a list of available USD based products for trading
-            this.products = await this.publicClient.getProducts();
+            this.products = await this.client.getProducts();
             // For now, filter out non-USD products
-            //products = products
-
-            console.info(JSON.stringify(this.products, null, 2));
+            this.products = this.products.filter(({id}) => id.includes('USD'));
+            // Start websocket client
+            this.wsClient = this.createWSClient();
+            // Register wsClient events
+            this.wsClient.on('message', this.handleWsMessage);
+            this.wsClient.on('error', this.handleWsError);
+            this.wsClient.on('close', this.handleWsClose);
         } catch (error) {
+            // For now just log the error. In the future we may want to try again in 5 seconds or so
             console.error(error);
         }
+    }
 
-        // Register wsClient events
-        this.wsClient.on('message', this.handleWsMessage);
-        this.wsClient.on('error', this.handleWsError);
-        this.wsClient.on('close', this.handleWsClose);
+    /**
+     * Creates the public client based on the env variable
+     * @returns {"gdax".AuthenticatedClient}
+     */
+    createClient() {
+        const {key, secret, passphrase} = GDAX_CREDENTIALS || {key: '', secret: '', passphrase: ''};
+        return new AuthenticatedClient(key, secret, passphrase, GDAX_API_URL);
+    }
+
+    /**
+     * Creates the WS Client based on the env variable
+     * @returns {"gdax".WebsocketClient}
+     */
+    createWSClient() {
+        const products = this.products.map(({id}) => id);
+        const options = {channels: ['user']};
+        return new WebsocketClient(products, GDAX_API_WS_FEED, GDAX_CREDENTIALS, options);
     }
 
     /**
