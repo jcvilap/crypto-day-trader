@@ -2,7 +2,7 @@
  * Change this key to move from SANDBOX(test env) to LIVE(production)
  * @type {string}
  */
-const ENV_KEY = 'SANDBOX';
+const ENV_KEY = 'LIVE';
 const ENV = {
     SANDBOX: {
         GDAX_API_URL: 'https://api-public.sandbox.gdax.com',

@@ -1,5 +1,6 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
 const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../credentials');
+const {ChannelType} = require('../enums');
 
 class Engine {
     constructor() {
@@ -7,6 +8,7 @@ class Engine {
         this.wsClient = null;
         this.products = null;
 
+        this.handleWsOpen = this.handleWsOpen.bind(this);
         this.handleWsMessage = this.handleWsMessage.bind(this);
         this.handleWsError = this.handleWsError.bind(this);
         this.handleWsClose = this.handleWsClose.bind(this);
@@ -27,6 +29,7 @@ class Engine {
             // Start websocket client
             this.wsClient = this.createWSClient();
             // Register wsClient events
+            this.wsClient.on('open', this.handleWsOpen);
             this.wsClient.on('message', this.handleWsMessage);
             this.wsClient.on('error', this.handleWsError);
             this.wsClient.on('close', this.handleWsClose);
@@ -51,7 +54,7 @@ class Engine {
      */
     createWSClient() {
         const products = this.products.map(({id}) => id);
-        const options = {channels: ['user']};
+        const options = {channels: ['ticker']};
         return new WebsocketClient(products, GDAX_API_WS_FEED, GDAX_CREDENTIALS, options);
     }
 
@@ -66,19 +69,21 @@ class Engine {
     }
 
     /**
-     * Connects to GDAX feeds and spins off the analysis
-     * @param {Array<CryptoProduct>} products
+     * WS Open callback
      */
-    connectToFeeds(products) {
-
+    handleWsOpen() {
+        console.info('Websocket client open');
     }
 
     /**
-     * Based on a new feed, analyse the action to take, if any.
-     * @param feed
+     * Receives a GDAX feeds and spins off the analysis
+     * @param {Array<CryptoProduct>} products
      */
     handleWsMessage(feed) {
-        console.log(JSON.stringify(feed, null, 2))
+        // For now only listen to the ticker channel
+        if (feed.type === ChannelType.TICKER) {
+            console.info(feed);
+        }
     }
 
     handleWsError(error) {
