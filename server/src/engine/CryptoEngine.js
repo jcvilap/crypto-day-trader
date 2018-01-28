@@ -1,7 +1,7 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
 const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../credentials');
 const {ChannelType, Granularity} = require('../enums');
-const CryptoHistory = require('./CryptoHistory');
+const CryptoHistory = require('../services/CryptoHistory');
 const moment = require('moment');
 
 class Engine {
