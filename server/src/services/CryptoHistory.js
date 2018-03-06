@@ -31,84 +31,84 @@ const moment = require('moment');
  *
  */
 class CryptoHistory {
-    constructor() {
-        this._store = {};
-    }
+  constructor() {
+    this._store = {};
+  }
 
-    /**
-     * Transforms a single record into supported format
-     * @param product
-     * @param record
-     * @private
-     */
-    static _transform(product, record) {
-        return {
-            time: record.time || null,
-            sequence: record.sequence || null,
-            product_id: product,
-            price: record.price || record.close || null,
-            open: record.open_24h || record.open || null,
-            volume: record.volume_24h || record.volume || null,
-            low: record.low_24h || record.low || null,
-            high: record.high_24h || record.high || null,
-            best_bid: record.best_bid || null,
-            best_ask: record.best_ask || null,
-            side: record.side || null,
-            trade_id: record.trade_id || null,
-            last_size: record.last_size || null
-        };
-    }
+  /**
+   * Transforms a single record into supported format
+   * @param product
+   * @param record
+   * @private
+   */
+  static _transform(product, record = []) {
+    return {
+      time: record.sequence || record[0] || null,
+      product_id: product,
+      price: parseFloat(record.price) || record[4]  || null,
+      open: parseFloat(record.open_24h) || record[3] || null,
+      volume: parseFloat(record.volume_24h) || record[5] || null,
+      low: parseFloat(record.low_24h) || record[1] || null,
+      high: parseFloat(record.high_24h) || record[2] || null,
+      best_bid: parseFloat(record.best_bid) || null,
+      best_ask: parseFloat(record.best_ask) || null,
+      side: record.side || null,
+      trade_id: record.trade_id || null,
+      last_size: record.last_size || null
+    };
+  }
 
-    /**
-     * Transforms a list of records into supported records
-     * @private
-     * @param product
-     * @param records
-     */
-    _transformAll(product, records = []) {
-        if (product && !this._store[product]) {
-            this._store[product] = [];
+  /**
+   * Transforms a list of records into supported records
+   * @private
+   * @param product
+   * @param records
+   */
+   _transformAll(product, records = []) {
+    if (product && !this._store[product]) {
+      this._store[product] = [];
+    }
+    records.forEach(record => {
+      const transformedRecord = CryptoHistory._transform(product, record);
+      // Place each record in the correct order(by time)
+      if (this._store[product].length === 0) {
+        this._store[product].push(transformedRecord);
+      } else if (moment.unix(transformedRecord.time).isBefore(this._store[product][0].time)) {
+        this._store[product].unshift(transformedRecord);
+      } else {
+        // Insert and maintain the order
+        for (let i = 0; i < this._store[product].length; i++) {
+          if (moment.unix(transformedRecord.time).isAfter(moment.unix(this._store[product][i].time))) {
+            this._store[product].splice(i + 1, 0, transformedRecord);
+            break;
+          }
         }
-        records.forEach(record => {
-            // Place each record in the correct order(by time)
-            if (this._store[product].length === 0) {
-                this._store[product].push(this._transform(record));
-            } else if (moment.unix(record.time).isBefore(this._store[product][0])) {
-                this._store[product].unshift(this._transform(record));
-            } else {
-                // Insert and maintain the order
-                for (let i = 0; i < this._store[product].length; i++) {
-                    if (moment.unix(record.time).isAfter(moment.unix(this._store[product][i].time))) {
-                        this._store[product].splice(i + 1, 0, this._transform(record));
-                        break;
-                    }
-                }
-            }
-        });
-    }
+      }
+    });
+  }
 
-    /**
-     * Method used to join records from the history API into the history data structure
-     * @param product
-     * @param records
-     */
-    join(product, records = []) {
-        this._transformAll(product, records)
-            .forEach(record => this.append(record));
-    }
+  /**
+   * Method used to join records from the history API into the history data structure
+   * @param product
+   * @param records
+   */
+  join(product, records = []) {
+    this._transformAll(product, records);
+  }
 
-    /**
-     * Appends a record to the specific product in the data store
-     * @param record
-     */
-    append(record = {}) {
-        if (record.product_id) {
-            if (!this._store[record.product_id]) {
-                this._store[record.product_id] = [];
-            }
-            this._store[record.product_id].push(record);
-        }
+  /**
+   * Appends a record to the specific product in the data store. It does not respect order,
+   * will push it to the end of the collection
+   * @param record
+   */
+  append(record = {}) {
+    if (record.product_id) {
+      if (!this._store[record.product_id]) {
+        this._store[record.product_id] = [];
+      }
+      this._store[record.product_id].push(CryptoHistory._transform(record.product_id, record));
     }
+  }
 }
 
 module.exports = CryptoHistory;

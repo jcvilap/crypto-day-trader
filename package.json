@@ -5,7 +5,7 @@
   "main": "server/src",
   "scripts": {
     "start": "npm run start-client & npm run start-server",
-    "start-server": "node server/src",
+    "start-server": "node server/src/main.js",
     "start-client": "webpack-dev-server --config ./client/webpack.config.js",
     "build-client": "webpack -p --config=client/webpack.config.js"
   },

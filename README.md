@@ -6,12 +6,12 @@
 - [x] Set up a Node server and deploy it to Heroku
 - [ ] Setup a Mongo instance in mLab and connect to it from Node
 - [ ] Deploy Client app to Surge.sh and point server calls to server's APIs
-- [ ] Create an API interact with Rules
 #### Server
 - [x] Connect to GDAX sandboxes for development and production environment 
 - [x] Handle security based on GDAX/Coinbase account
 - [x] Listen to changes on crypto-currencies
-- [ ] Read history on selected currencies before starting the analysis
+- [ ] Get historic data, normalize and combine with live feeds on load
+- [ ] Define `Rule` class
 - [ ] Store and read user preferences and gather what currencies to watch and what rules to apply
 - [ ] Enable Buy/Sell, Taker/Maker actions based on user preferences
 - [ ] Build an engine to analyze data and come up with limits for specific timeframes. Identify walls an use them to come up with smart limits
