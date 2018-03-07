@@ -37,6 +37,7 @@ class CryptoHistory {
 
   /**
    * Transforms a single record into supported format
+   * Todo: normalize better all the datatypes
    * @param product
    * @param record
    * @private
@@ -60,6 +61,7 @@ class CryptoHistory {
 
   /**
    * Transforms a list of records into supported records
+   * Todo: finish this method
    * @private
    * @param product
    * @param records
