@@ -1,44 +1,61 @@
 class Rule {
   /**
-   * Entity symbol
+   * Entity symbol for this .
    * @example 'BTC-USD'
    */
   symbol;
 
   /**
-   * Percentage of the portfolio allocated to this symbol
-   * @example 100
+   * Equivalent amount in USD of the invested funds.
+   * Only holds a value if the state is equals to 'bought'
+   */
+  balance;
+
+  /**
+   * Current state of the rule. Possible values:
+   *  idle - the Rule is turned off by user
+   *  bought - result of a BUY
+   *  sold - result of a SELL
+   *  pending - pending BUY or SELL transaction
+   */
+  state;
+
+  /**
+   * Percentage of the entire portfolio allocated to this symbol.
+   * @example 100%
    */
   portfolioDiversity;
 
   /**
-   * Percentage of the invested funds(how much I'm willing to loose after this rule gets applied)
-   * @example
+   * Percentage of balance representing how much I'm willing to loose.
+   * This amount will increase/decrease as the balance fluctuates
    */
   riskLimit;
 
   /**
-   * Percentage of the invested funds that, if reached, will trigger a SELL
+   * Percentage of the invested funds that, if reached, will trigger a SELL.
+   * Only holds a value if the state is equals to 'bought'
+   * @example 1%
    */
   stopLoss;
 
   /**
-   * Triggered after a stop-loss sell
+   * True if the entity value reaches 'dipLimitValue' amount and the rule state is 'sold'
+   * False after a BUY is performed
    */
-  limitBuyAfterLoss = {
-    /**
-     * Whether we are or not watching the symbol to hit the limits
-     */
-    active: true,
-    /**
-     * Entity value or amount (not percentage) that drives the 'buyLimit'
-     */
-    dipLimit: '',
-    /**
-     * Entity value or amount (not percentage) that triggers a BUY after hitting the 'dipLimit
-     */
-    buyLimit: '',
-  };
+  dipLimitActive;
+
+  /**
+   * If entity value reaches this value, 'dipLimitActive' becomes true and 'buyLimit' triggers a SELL if
+   * the entity reaches the amount of 'buyLimitValue'
+   * Only holds a value if the state is equals to 'sold'
+   */
+  dipLimitValue;
+
+  /**
+   * Triggers a SELL if the entity reaches this amount after reaching 'dipLimitValue'
+   */
+  buyLimitValue;
 }
 
 module.exports = Rule;
