@@ -1,15 +1,15 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
 const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../credentials');
-const {ChannelType, Granularity} = require('../enums');
+const {ChannelType} = require('../enums');
 const CryptoHistory = require('../services/CryptoHistory');
-const moment = require('moment');
 
 class Engine {
   constructor() {
     this.client = null;
     this.wsClient = null;
     this.products = null;
-    this.history = new CryptoHistory();
+    this.productIds = null;
+    this.history = null;
 
     this.handleWsOpen = this.handleWsOpen.bind(this);
     this.handleWsMessage = this.handleWsMessage.bind(this);
@@ -27,20 +27,26 @@ class Engine {
       this.client = this.createClient();
       // Get a list of available USD based products for trading
       this.products = await this.client.getProducts();
-      // For now, filter out non-USD products. This will change...
+      // For now, filter out non-USD products. This will change, especially when trying to minimize tax deductions...
       this.products = this.products.filter(({id}) => id.includes('USD'));
+      this.productIds = this.products.map(({id}) => id);
+      // Instantiate history
+      this.history = new CryptoHistory(this.productIds);
       // Start websocket client
       this.wsClient = this.createWSClient();
       // Register events
       this.registerWsEvents();
-      // Get historic values and start initial analysis
-      await this.getHistory(Granularity.SIX_HOURS, this.startAnalysis);
+      // Start initial analysis
+      this.startAnalysis();
     } catch (error) {
       // For now just log the error. In the future we may want to try again reconnecting in 5 seconds or so
       console.error(error);
     }
   }
 
+  /**
+   * Register Websocket events handlers
+   */
   registerWsEvents() {
     this.wsClient.on('open', this.handleWsOpen);
     this.wsClient.on('message', this.handleWsMessage);
@@ -49,18 +55,13 @@ class Engine {
   }
 
   /**
-   * After initial history is finished downloading, start analysis to make initial decision
-   * @param history
-   * @param lastDayIncluded
+   * Start analysis
+   * - Fetch account data from GDAX
+   * - Fetch rules for user
+   * - Resume rules based on account data
    */
-  startAnalysis(history, lastDayIncluded) {
-    history.forEach(h => this.history.join(h.key, h.data));
-    // Recursive call to get  the last date history and prepare history stream for real-time decision making
-    if (!lastDayIncluded) {
-      return this.getHistory(Granularity.ONE_MINUTE, (res) => this.startAnalysis(res, true));
-    } else {
-      console.log('Y ahora que?')
-    }
+  startAnalysis() {
+
   }
 
   /**
@@ -88,46 +89,9 @@ class Engine {
    * @returns {"gdax".WebsocketClient}
    */
   createWSClient() {
-    const products = this.products.map(({id}) => id);
+    const products = this.productIds;
     const options = {channels: ['ticker']};
     return new WebsocketClient(products, GDAX_API_WS_FEED, GDAX_CREDENTIALS, options);
-  }
-
-  /**
-   * Gets product(s) history. GDAX public APIs only supports 3 requests per second by IP, therefore we need to
-   * divide the requests into buckets and execute them sequentially
-   * @param granularity
-   * @param callback
-   */
-  async getHistory(granularity, callback) {
-    const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    let [buckets, history, counter, interval] = [[], [], 0, null];
-
-    // Place products into buckets of 3
-    this.products.forEach(({id}) => {
-      if (!buckets[counter]) {
-        buckets[counter] = [id];
-      } else if (buckets[counter] && buckets[counter].length && buckets[counter].length < 3) {
-        buckets[counter].push(id);
-      } else {
-        counter++;
-        buckets[counter] = [id];
-      }
-    });
-
-    // Reuse counter
-    counter = 0;
-
-    while (counter < buckets.length) {
-      history.push(...await Promise.all(
-        buckets[counter++].map(id => this.client.getProductHistoricRates(id, {granularity}))));
-
-      // Await a second before moving on
-      await timeout(1500);
-    }
-
-    // Return history array with product id as keys
-    callback(history.map((h, i) => ({key: this.products[i].id, data: h})));
   }
 
   /**
