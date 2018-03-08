@@ -6,22 +6,21 @@ class Rule {
   symbol;
 
   /**
-   * Equivalent amount in USD of the invested funds.
-   * Only holds a value if the state is equals to 'bought'
+   * Equivalent amount in USD of the funds allocated to the rule.
    */
   balance;
 
   /**
-   * Current state of the rule. Possible values:
+   * Current status of the rule. Possible values:
    *  idle - the Rule is turned off by user
    *  bought - result of a BUY
    *  sold - result of a SELL
    *  pending - pending BUY or SELL transaction
    */
-  state;
+  status;
 
   /**
-   * Percentage of the entire portfolio allocated to this symbol.
+   * Percentage that 'balance' represents of the entire account portfolio.
    * @example 100%
    */
   portfolioDiversity;
@@ -33,29 +32,18 @@ class Rule {
   riskLimit;
 
   /**
-   * Percentage of the invested funds that, if reached, will trigger a SELL.
-   * Only holds a value if the state is equals to 'bought'
+   * Percentage of the balance (invested) that, if reached, will trigger a SELL.
+   * Only triggers a SELL if status is 'bought'
    * @example 1%
    */
-  stopLoss;
+  stopPrice;
 
   /**
-   * True if the entity value reaches 'dipLimitValue' amount and the rule state is 'sold'
-   * False after a BUY is performed
+   * Percentage of the balance (non-invested) that, if reached, will trigger a BUY.
+   * Only triggers a BUY if status is 'sold'
+   * @example 1%
    */
-  dipLimitActive;
-
-  /**
-   * If entity value reaches this value, 'dipLimitActive' becomes true and 'buyLimit' triggers a SELL if
-   * the entity reaches the amount of 'buyLimitValue'
-   * Only holds a value if the state is equals to 'sold'
-   */
-  dipLimitValue;
-
-  /**
-   * Triggers a SELL if the entity reaches this amount after reaching 'dipLimitValue'
-   */
-  buyLimitValue;
+  limitPrice;
 }
 
 module.exports = Rule;
