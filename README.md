@@ -10,23 +10,26 @@
 - [x] Connect to GDAX sandboxes for development and production environment 
 - [x] Handle security based on GDAX/Coinbase account
 - [x] Listen to changes on crypto-currencies
-- [ ] Get historic data, normalize and combine with live feeds on load
+- [x] Hold feeds in a local data structure
 - [ ] Define `Rule` class
-- [ ] Store and read user preferences and gather what currencies to watch and what rules to apply
-- [ ] Enable Buy/Sell, Taker/Maker actions based on user preferences
-- [ ] Build an engine to analyze data and come up with limits for specific timeframes. Identify walls an use them to come up with smart limits
-- [ ] Perform transactions based on analysis
+- [ ] Fetch user account info from GDAX
+- [ ] Fetch user `rules` from database
+- [ ] Enable Buy/Sell, Taker/Maker actions based
+- [ ] Perform transactions based on `rules`
+- [ ] Store transactions in database
+- [ ] Expose a REST API to fetch user information, performance and any stored transaction(mode to come here...)
+- [ ] Expose a WebSocket API to fetch feeds on both user performance and GDAX feeds
 - [ ] Alert via email/SMS/native notifications when a transaction happened
 ### Client
 - [ ] Enable new users to enter their Coinbase credentials
 - [ ] Enable user to create or reuse rules. Which will affect the percentage-risk for automated trading
 - [ ] Enable user to start/stop their artificial traders
 - [ ] Connect via Websockets to show transactions realtime
-- [ ] Show statistics, history and performance 
+- [ ] Show history and performance 
 ## Docs
 ### 3rd Party APIs
 - Stocks feed: [IEX Trading](https://iextrading.com/developer/)
-- Stocks order management: [Robinhood's Private API](https://api.robinhood.com/)
+- Stocks order management(in the near future...): [Robinhood's Private API](https://api.robinhood.com/)
 - Crypto-currencies feed and order management: [GDAX Websocket Client](https://github.com/coinbase/gdax-node#websocket-client)
 ### Rules
 I define a `Rule` as a single instance of multiple trading strategies to be used by the `Engine`. Rules can be defined by the user and will be stored in the Mongo instance
