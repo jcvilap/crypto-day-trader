@@ -1,12 +1,22 @@
 class Rule {
+  constructor(symbol, status, portfolioDiversity, riskLimit, stopPrice, limitPrice) {
+    this.symbol = symbol;
+    this.status = status;
+    this.portfolioDiversity = portfolioDiversity;
+    this.riskLimit = riskLimit;
+    this.stopPrice = stopPrice;
+    this.limitPrice = limitPrice;
+  }
   /**
-   * Entity symbol for this .
-   * @example 'BTC-USD'
+   * Base currency symbol.
+   * @example 'BTC'
    */
   symbol;
 
   /**
    * Equivalent amount in USD of the funds allocated to the rule.
+   * Calculated on initial rule load
+   * @readonly
    */
   balance;
 

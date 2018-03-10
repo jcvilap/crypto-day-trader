@@ -1,21 +1,21 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
-const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../credentials');
-const {ChannelType} = require('../enums');
-const CryptoHistory = require('../services/CryptoHistory');
+const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../../credentials');
+const {ChannelType} = require('../../enums');
+const RuleEngine = require('./RuleEngine');
 
 class Engine {
   constructor() {
     this.client = null;
     this.wsClient = null;
     this.products = null;
+    this.accounts = null;
     this.productIds = null;
-    this.history = null;
+    this.ruleEngine = null;
 
     this.handleWsOpen = this.handleWsOpen.bind(this);
     this.handleWsMessage = this.handleWsMessage.bind(this);
     this.handleWsError = this.handleWsError.bind(this);
     this.handleWsClose = this.handleWsClose.bind(this);
-    this.startAnalysis = this.startAnalysis.bind(this);
   }
 
   /**
@@ -25,19 +25,20 @@ class Engine {
     try {
       // Create HTTP client
       this.client = this.createClient();
+      // Get list of accounts with balances
+      this.accounts = await this.client.getAccounts();
       // Get a list of available USD based products for trading
       this.products = await this.client.getProducts();
       // For now, filter out non-USD products. This will change, especially when trying to minimize tax deductions...
-      this.products = this.products.filter(({id}) => id.includes('USD'));
+      this.products = this.products.filter(({quote_currency: s}) => s === 'USD');
+      // Helper list of product ids
       this.productIds = this.products.map(({id}) => id);
-      // Instantiate history
-      this.history = new CryptoHistory(this.productIds);
+      // Fetch the list of rules for the current user
+      this.ruleEngine = new RuleEngine(this.products, this.accounts);
       // Start websocket client
       this.wsClient = this.createWSClient();
       // Register events
       this.registerWsEvents();
-      // Start initial analysis
-      this.startAnalysis();
     } catch (error) {
       // For now just log the error. In the future we may want to try again reconnecting in 5 seconds or so
       console.error(error);
@@ -55,23 +56,13 @@ class Engine {
   }
 
   /**
-   * Start analysis
-   * - Fetch account data from GDAX
-   * - Fetch rules for user
-   * - Resume rules based on account data
-   */
-  startAnalysis() {
-
-  }
-
-  /**
    * Handle new feeds
    * @param feed
    */
   handleWsMessage(feed) {
     // For now only listen to the ticker channel
     if (feed.type === ChannelType.TICKER) {
-      this.history.append(feed);
+      this.ruleEngine.handleNewFeed(feed);
     }
   }
 

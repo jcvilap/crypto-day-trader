@@ -11,8 +11,8 @@
 - [x] Handle security based on GDAX/Coinbase account
 - [x] Listen to changes on crypto-currencies
 - [x] Hold feeds in a local data structure
-- [ ] Define `Rule` class
 - [ ] Fetch user account info from GDAX
+- [ ] Define `Rule` class
 - [ ] Fetch user `rules` from database
 - [ ] Enable Buy/Sell, Taker/Maker actions based
 - [ ] Perform transactions based on `rules`

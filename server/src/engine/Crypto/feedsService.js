@@ -19,8 +19,8 @@
  *          last_size: '7.59537847'
  *      }
  */
-class CryptoHistory {
-  constructor(ids) {
+class FeedsService {
+  init(ids) {
     this._store = new Map(ids.map(id => [id, []]));
   }
 
@@ -29,7 +29,7 @@ class CryptoHistory {
    * @param id
    * @returns {*}
    */
-  byId(id) {
+  getById(id) {
     return this._store.get(id);
   }
 
@@ -46,4 +46,4 @@ class CryptoHistory {
   }
 }
 
-module.exports = CryptoHistory;
+module.exports = new FeedsService();
