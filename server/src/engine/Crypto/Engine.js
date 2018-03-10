@@ -1,7 +1,6 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
 const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../../credentials');
 const {ChannelType} = require('../../enums');
-const RuleEngine = require('./RuleEngine');
 
 class Engine {
   constructor() {
@@ -10,7 +9,6 @@ class Engine {
     this.products = null;
     this.accounts = null;
     this.productIds = null;
-    this.ruleEngine = null;
 
     this.handleWsOpen = this.handleWsOpen.bind(this);
     this.handleWsMessage = this.handleWsMessage.bind(this);
@@ -33,8 +31,8 @@ class Engine {
       this.products = this.products.filter(({quote_currency: s}) => s === 'USD');
       // Helper list of product ids
       this.productIds = this.products.map(({id}) => id);
-      // Fetch the list of rules for the current user
-      this.ruleEngine = new RuleEngine(this.products, this.accounts);
+      // Clean all orders on start, new orders will be placed after analysis
+      await this.client.cancelAllOrders();
       // Start websocket client
       this.wsClient = this.createWSClient();
       // Register events
@@ -44,6 +42,18 @@ class Engine {
       console.error(error);
     }
   }
+
+  /**
+   * 1 - Get rules and for each rule
+   * 2 - Calculate rule fields such as status and balances based on accounts balances
+   * 3 - Save rule to db
+   * 4 - Sync with feeds
+   * 5 - Place limit orders
+   * 6 - Listen to order fills
+   * 7 - go to #2
+   */
+  start() {}
+
 
   /**
    * Register Websocket events handlers
@@ -62,7 +72,7 @@ class Engine {
   handleWsMessage(feed) {
     // For now only listen to the ticker channel
     if (feed.type === ChannelType.TICKER) {
-      this.ruleEngine.handleNewFeed(feed);
+      console.log(feed);
     }
   }
 
