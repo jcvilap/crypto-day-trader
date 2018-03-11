@@ -1,7 +1,7 @@
 class UserPreference {
-    user;
-    activeRules;
-    ownedRules;
+  user;
+  activeRules;
+  ownedRules;
 }
 
 module.exports = UserPreference;

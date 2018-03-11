@@ -21,6 +21,7 @@
   "homepage": "artificialtrader.surge.sh",
   "dependencies": {
     "moment": "^2.20.1",
+    "mongoose": "^5.0.9",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },

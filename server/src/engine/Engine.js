@@ -1,6 +1,7 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
-const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../../credentials');
-const {ChannelType} = require('../../enums');
+const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../env');
+const Rule = require('../models/Rule');
+const {ChannelType} = require('../enums');
 
 class Engine {
   constructor() {
@@ -9,11 +10,13 @@ class Engine {
     this.products = null;
     this.accounts = null;
     this.productIds = null;
+    this.rules = null;
 
     this.handleWsOpen = this.handleWsOpen.bind(this);
     this.handleWsMessage = this.handleWsMessage.bind(this);
     this.handleWsError = this.handleWsError.bind(this);
     this.handleWsClose = this.handleWsClose.bind(this);
+    this.start = this.start.bind(this);
   }
 
   /**
@@ -31,12 +34,15 @@ class Engine {
       this.products = this.products.filter(({quote_currency: s}) => s === 'USD');
       // Helper list of product ids
       this.productIds = this.products.map(({id}) => id);
+      // Get stored rules
+      this.rules = await Rule.find();
       // Clean all orders on start, new orders will be placed after analysis
       await this.client.cancelAllOrders();
       // Start websocket client
       this.wsClient = this.createWSClient();
       // Register events
       this.registerWsEvents();
+      //
     } catch (error) {
       // For now just log the error. In the future we may want to try again reconnecting in 5 seconds or so
       console.error(error);
@@ -52,8 +58,14 @@ class Engine {
    * 6 - Listen to order fills
    * 7 - go to #2
    */
-  start() {}
-
+  analyse() {
+    if (!this.rules.length) {
+      let rule = new Rule({
+        symbol: 'BTC',
+        balance: 0
+      });
+    }
+  }
 
   /**
    * Register Websocket events handlers

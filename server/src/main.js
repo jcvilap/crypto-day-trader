@@ -1,11 +1,14 @@
 const {createServer} = require('http');
-const {PORT} = require('./config');
-const CryptoEngine = require('./engine/Crypto/Engine');
+const mongoose = require('mongoose');
+const {PORT, DB} = require('./env');
+const Engine = require('./engine/Engine');
 
 class App {
   constructor() {
     this.server = createServer();
-    this.cryptoEngine = new CryptoEngine();
+    this.engine = new Engine();
+    mongoose.connect(DB);
+    this.db = mongoose.connection;
 
     this.handleExit = this.handleExit.bind(this);
     this.registerEvents();
@@ -14,6 +17,8 @@ class App {
 
   registerEvents() {
     process.on('SIGTERM', this.handleExit);
+    this.db.on('error', (e) => console.error('connection error:', e));
+    this.db.once('open', () => console.log('Database connected'));
   }
 
   /**
@@ -21,9 +26,8 @@ class App {
    */
   start() {
     this.server.listen(PORT, () => {
-      // Start engine
-      this.cryptoEngine.start()
-        .then(() => console.info('Engine started on port', PORT));
+      console.log('Listening to port:', PORT);
+      this.engine.start();
     })
   }
 

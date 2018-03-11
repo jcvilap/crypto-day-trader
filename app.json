@@ -1,5 +1,9 @@
 {
-    "name": "Artificial Trader",
-    "repository": "https://github.com/jcvilap/artificial-trader",
-    "keywords": ["node", "react", "trading"]
+  "name": "Artificial Trader",
+  "repository": "https://github.com/jcvilap/artificial-trader",
+  "keywords": [
+    "node",
+    "react",
+    "trading"
+  ]
 }
