@@ -42,7 +42,8 @@ class Engine {
       this.wsClient = this.createWSClient();
       // Register events
       this.registerWsEvents();
-      //
+      // Fire up the engine
+      this.analyse();
     } catch (error) {
       // For now just log the error. In the future we may want to try again reconnecting in 5 seconds or so
       console.error(error);
@@ -58,13 +59,47 @@ class Engine {
    * 6 - Listen to order fills
    * 7 - go to #2
    */
-  analyse() {
+  async analyse() {
+    // Create a default rule if no rules found
     if (!this.rules.length) {
-      let rule = new Rule({
-        symbol: 'BTC',
-        balance: 0
-      });
+      const rule = new Rule({symbol: 'ETH'});
+      this.rules = [await rule.save()];
     }
+
+    this.rules.forEach(async rule => {
+      const usdAccount = this.accounts.find(({currency}) => currency === 'USD');
+      const ruleAccount = this.accounts.find(({currency}) => currency === rule.symbol);
+      const usdBalance = Number(usdAccount.balance);
+      const ruleBalance = Number(ruleAccount.balance);
+
+
+      // Only perform an action if there are funds
+      if (usdBalance || ruleBalance) {
+        const options = {product_id: `${rule.symbol}-USD`, type: 'limit'};
+
+        // Set status and balance. Buy or sell the ${size} @ the ${price}
+        if (ruleBalance) {
+          rule.status = 'bought';
+          rule.balance = ruleBalance;
+          rule = await rule.save();
+          options.side = 'sell';
+          options.price = rule.stopPriceValue.toString();
+          options.size = ruleBalance.toString();
+        } else if (usdBalance) {
+          rule.status = 'sold';
+          rule.balance = usdBalance * rule.portfolioDiversity / 100;
+          rule = await rule.save();
+          options.side = 'buy';
+          options.price = rule.limitPriceValue.toString();
+          // Get price of latest ticker
+          const tick = await this.client.getProductTicker(options.product_id);
+          options.size = (rule.balance / tick.price).toString();
+        }
+        // Place limit orders
+        const resp = await this.client.placeOrder(options);
+        console.log(resp);
+      }
+    });
   }
 
   /**

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Utils = require('../utils');
 
 const Rule = new mongoose.Schema({
   /**
@@ -7,7 +8,7 @@ const Rule = new mongoose.Schema({
    */
   symbol: String,
   /**
-   * Equivalent amount in USD of the funds allocated to the rule.
+   * Funds allocated to the rule.
    * Calculated on initial rule load
    * @readonly
    */
@@ -60,10 +61,17 @@ Rule.pre('save', function preSave(next) {
   if (!rule.get('docinfo.createdAt')) {
     rule.set('docinfo.createdAt', now);
   }
+
   // Calculate values
   rule.riskLimitValue = rule.balance - (rule.balance * rule.riskLimitPerc / 100);
   rule.stopPriceValue = rule.balance - (rule.balance * rule.stopPricePerc / 100);
   rule.limitPriceValue = rule.balance + (rule.balance * rule.limitPricePerc / 100);
+
+  // Round values
+  rule.riskLimitValue = Utils.precisionRound(rule.riskLimitValue, 8);
+  rule.stopPriceValue = Utils.precisionRound(rule.stopPriceValue, 8);
+  rule.limitPriceValue = Utils.precisionRound(rule.limitPriceValue, 8);
+
   next();
 });
 
