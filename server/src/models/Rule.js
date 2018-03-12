@@ -8,6 +8,10 @@ const Rule = new mongoose.Schema({
    */
   symbol: String,
   /**
+   * Price per bitcoin
+   */
+  unitPrice: Number,
+  /**
    * Funds allocated to the rule.
    * Calculated on initial rule load
    * @readonly
@@ -64,13 +68,13 @@ Rule.pre('save', function preSave(next) {
 
   // Calculate values
   rule.riskLimitValue = rule.balance - (rule.balance * rule.riskLimitPerc / 100);
-  rule.stopPriceValue = rule.balance - (rule.balance * rule.stopPricePerc / 100);
-  rule.limitPriceValue = rule.balance + (rule.balance * rule.limitPricePerc / 100);
+  rule.stopPriceValue = rule.unitPrice - (rule.unitPrice * rule.stopPricePerc / 100);
+  rule.limitPriceValue = rule.unitPrice + (rule.unitPrice * rule.limitPricePerc / 100);
 
   // Round values
-  rule.riskLimitValue = Utils.precisionRound(rule.riskLimitValue, 8);
-  rule.stopPriceValue = Utils.precisionRound(rule.stopPriceValue, 8);
-  rule.limitPriceValue = Utils.precisionRound(rule.limitPriceValue, 8);
+  rule.riskLimitValue = Utils.precisionRound(rule.riskLimitValue, 2);
+  rule.stopPriceValue = Utils.precisionRound(rule.stopPriceValue, 2);
+  rule.limitPriceValue = Utils.precisionRound(rule.limitPriceValue, 2);
 
   next();
 });

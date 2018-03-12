@@ -36,6 +36,7 @@ class Engine {
       this.productIds = this.products.map(({id}) => id);
       // Get stored rules
       this.rules = await Rule.find();
+      console.log( JSON.stringify(await this.client.getOrders()));
       // Clean all orders on start, new orders will be placed after analysis
       await this.client.cancelAllOrders();
       // Start websocket client
@@ -72,33 +73,42 @@ class Engine {
       const usdBalance = Number(usdAccount.balance);
       const ruleBalance = Number(ruleAccount.balance);
 
+      try {
+        // Only perform an action if there are funds
+        if (usdBalance || ruleBalance) {
+          const options = {product_id: `${rule.symbol}-USD`, type: 'limit'};
+          const lastTick = await this.client.getProductTicker(options.product_id);
 
-      // Only perform an action if there are funds
-      if (usdBalance || ruleBalance) {
-        const options = {product_id: `${rule.symbol}-USD`, type: 'limit'};
-
-        // Set status and balance. Buy or sell the ${size} @ the ${price}
-        if (ruleBalance) {
-          rule.status = 'bought';
-          rule.balance = ruleBalance;
-          rule = await rule.save();
-          options.side = 'sell';
-          options.price = rule.stopPriceValue.toString();
-          options.size = ruleBalance.toString();
-        } else if (usdBalance) {
-          rule.status = 'sold';
-          rule.balance = usdBalance * rule.portfolioDiversity / 100;
-          rule = await rule.save();
-          options.side = 'buy';
-          options.price = rule.limitPriceValue.toString();
-          // Get price of latest ticker
-          const tick = await this.client.getProductTicker(options.product_id);
-          options.size = (rule.balance / tick.price).toString();
+          // Set status and balance. Buy or sell the ${size} @ the ${price}
+          if (ruleBalance) {
+            rule.status = 'bought';
+            rule.balance = ruleBalance;
+            rule.unitPrice = lastTick.price;
+            rule = await rule.save();
+            options.side = 'sell';
+            options.stop = 'loss';
+            options.stop_price = rule.stopPriceValue.toString();
+            options.price = rule.stopPriceValue.toString();
+            options.size = ruleBalance.toString();
+          } else if (usdBalance) {
+            // todo: check logic this is not right
+            rule.status = 'sold';
+            rule.balance = usdBalance * rule.portfolioDiversity / 100;
+            rule.unitPrice = lastTick.price;
+            rule = await rule.save();
+            options.side = 'buy';
+            options.price = rule.limitPriceValue.toString();
+            // Get price of latest ticker
+            options.size = (rule.balance / rule.unitPrice).toString();
+          }
+          // Place limit orders
+          const resp = await this.client.placeOrder(options);
+          console.log(resp);
         }
-        // Place limit orders
-        const resp = await this.client.placeOrder(options);
-        console.log(resp);
+      } catch (e) {
+        console.warn(e.message);
       }
+
     });
   }
 
