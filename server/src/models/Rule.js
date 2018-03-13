@@ -3,20 +3,19 @@ const Utils = require('../utils');
 
 const Rule = new mongoose.Schema({
   /**
-   * Base currency symbol.
+   * Product id
    * @example 'BTC-USD'
    */
-  symbol: String,
+  product_id: String,
   /**
-   * Price per bitcoin
+   * Price per bitcoin in USD
    */
-  unitPrice: Number,
+  price: Number,
   /**
-   * Funds allocated to the rule.
-   * Calculated on initial rule load
+   * Amount of bitcoin bought or sold
    * @readonly
    */
-  balance: {type: Number, default: 0},
+  size: {type: Number, default: 0},
   /**
    * Current status of the rule. Possible values:
    *  idle - the Rule is turned off by user
@@ -26,43 +25,42 @@ const Rule = new mongoose.Schema({
    */
   status: {type: String, default: 'idle'},
   /**
-   * Percentage that 'balance' represents of the entire account portfolio.
+   * Percentage that this rule represents of the entire account funds
    * @example 100%
    */
   portfolioDiversity: {type: Number, default: 100},
   /**
-   * Percentage of balance representing how much I'm willing to loose.
-   * This amount will increase/decrease as the balance fluctuates
+   * Highest value the rule had held since it was bought. This will drive the stop loss price
    */
-  riskLimitPerc: {type: Number, default: 10},
-  riskLimitValue: Number,
+  high: {type: Number, default: 0},
   /**
-   * Percentage of the balance (invested) that, if reached, will trigger a SELL.
+   * Price per bitcoin that, if reached, will trigger a limit SELL
    * Only triggers a SELL if status is 'bought'
    * @example 1%
    */
-  stopPricePerc: {type: Number, default: 1},
-  stopPriceValue: Number,
-
+  stopLossPerc: {type: Number, default: .1},
+  stopLossPrice: Number,
   /**
-   * Percentage of the balance (non-invested) that, if reached, will trigger a BUY.
+   * Lowest value the rule had held since it was sold. This will drive the limit sell price
+   */
+  low: {type: Number, default: 0},
+  /**
+   * Price per bitcoin that, if reached, will trigger a limit BUY
    * Only triggers a BUY if status is 'sold'
    * @example 1%
    */
-  limitPriceAfterDipPerc: {type: Number, default: .5},
-  limitPriceAfterDipValue: Number,
+  limitPerc: {type: Number, default: .05},
+  limitPrice: Number,
   /**
-   * Percentage of the balance (non-invested) that, if reached, will set the  a BUY.
-   * Only triggers a BUY if status is 'sold'
-   * @example 1%
+   * Price per bitcoin that, if reached, will trigger a market SELL and will put the rule on 'idle' state
+   * TODO: handle risk logic
    */
-  limitDipPerc: {type: Number, default: .5},
-  limitDipValue: Number,
+  riskPerc: {type: Number, default: 10},
+  riskPrice: Number,
   /**
-   * Flag indicating if the market value hit the dipLimit and enables a market buy using
-   * limitPriceValue as limit price
+   * Order id of active BUY or SELL limit order
    */
-  limitDipActive: {type: Boolean, default: false},
+  limitOrderId: String,
 });
 
 /**
@@ -78,17 +76,21 @@ Rule.pre('save', function preSave(next) {
     rule.set('docinfo.createdAt', now);
   }
 
-  // Calculate values
-  rule.riskLimitValue = rule.balance - (rule.balance * rule.riskLimitPerc / 100);
-  rule.stopPriceValue = rule.unitPrice - (rule.unitPrice * rule.stopPricePerc / 100);
-  rule.limitDipValue = rule.unitPrice + (rule.unitPrice * rule.limitDipPerc / 100);
-  rule.limitPriceAfterDipValue = rule.limitDipValue  + (rule.limitDipValue  * rule.limitPriceAfterDipPerc / 100);
+  // Upwards movement
+  if (rule.status === 'bought' && (rule.high < rule.price || rule.high === 0)) {
+    rule.high = rule.price;
+    rule.riskPrice = rule.high - (rule.high * rule.riskPerc / 100);
+    rule.stopLossPrice = rule.high - (rule.high * rule.stopLossPerc / 100);
+    rule.riskPrice = Utils.precisionRound(rule.riskPrice, 2);
+    rule.stopLossPrice = Utils.precisionRound(rule.stopLossPrice, 2);
+  }
 
-  // Round values
-  rule.riskLimitValue = Utils.precisionRound(rule.riskLimitValue, 2);
-  rule.stopPriceValue = Utils.precisionRound(rule.stopPriceValue, 2);
-  rule.limitPriceValue = Utils.precisionRound(rule.limitPriceValue, 2);
-  rule.limitPriceAfterDipValue = Utils.precisionRound(rule.limitPriceValue, 2);
+  // Downwards movement
+  if (rule.status === 'sold' && (rule.low > rule.price || rule.low === 0)) {
+    rule.low = rule.price;
+    rule.limitPrice = rule.low + (rule.low * rule.limitPerc / 100);
+    rule.limitPrice = Utils.precisionRound(rule.limitPrice, 2);
+  }
 
   next();
 });
