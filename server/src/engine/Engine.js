@@ -189,8 +189,11 @@ class Engine {
       }
       // Update rule as a last step
       await rule.save();
+    } else if (ChannelType.HEARTBEAT !== feed.type) {
+      console.log(JSON.stringify(feed));
+      // TODO: listen in the user channel for fills and build logic
     }
-    // TODO: listen in the user channel for fills and build logic
+
   }
 
   /**
