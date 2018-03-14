@@ -1,6 +1,6 @@
 const {AuthenticatedClient, WebsocketClient} = require('gdax');
 const {GDAX_API_URL, GDAX_API_WS_FEED, GDAX_CREDENTIALS} = require('../env');
-const Rule = require('../models/Rule');
+const {Rule, validateRule} = require('../models/Rule');
 const {ChannelType} = require('../enums');
 const Utils = require('../utils');
 
@@ -68,7 +68,7 @@ class Engine {
     try {
       // Create a default rule if no rules found
       if (!this.rules.length) {
-        const rule = new Rule({symbol: 'BTC-USD'});
+        const rule = new Rule({product_id: 'BTC-USD'});
         this.rules = [await rule.save()];
       }
 
@@ -82,36 +82,39 @@ class Engine {
         if (usdBalance || ruleBalance) {
           const options = {product_id: rule.product_id, type: 'limit'};
           const {price: lastPrice} = await this.client.getProductTicker(options.product_id);
+
+          // Update price
           rule.price = lastPrice;
+          // Calculate limits
+          validateRule(rule);
 
           // If we already have bitcoin, we only want to put a simple stop loss
           if (ruleBalance) {
             // Update and save rule
             rule.status = 'bought';
             rule.size = ruleBalance;
-            rule = await rule.save();
             // Prepare stop loss order
             options.side = 'sell';
             options.stop = 'loss';
             options.stop_price = rule.stopLossPrice.toString();
             options.price = rule.stopLossPrice.toString();
             options.size = rule.size.toString();
-            // Place stop loss
-            const order = await this.client.placeOrder(options);
-            rule.limitOrderId = order.id;
-            await rule.save();
           }
           // Put a limit buy if we do not have bitcoin
           else if (usdBalance) {
             // Update and save rule
             rule.status = 'sold';
-            rule = await rule.save();
-            // Prepare limti buy order
+            // Prepare limit buy order
             options.side = 'buy';
-            options.size = Utils.precisionRound(usdBalance / rule.limitPrice, 8).toString();
+            options.stop = 'entry';
+            options.size = usdBalance; // won't work because there is a taker fee of .25%, stopping here, bummer....
+            options.stop_price = rule.limitPrice.toString();
             options.price = rule.limitPrice.toString();
-            // Place stop loss
-            const order = await this.client.placeOrder(options);
+          }
+
+          // Place order and store order id
+          const order = await this.client.placeOrder(options);
+          if (order.id) {
             rule.limitOrderId = order.id;
             await rule.save();
           }
@@ -124,8 +127,7 @@ class Engine {
 
   /**
    *  Ticker logic:
-   *  - Get rule
-   *  -
+   * 1 - Get rule
    * 2 - Calculate rule fields such as status and balances based on accounts balances
    * 3 - Save rule to db
    * 4 - Sync with feeds

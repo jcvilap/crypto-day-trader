@@ -64,18 +64,10 @@ const Rule = new mongoose.Schema({
 });
 
 /**
- * Before persisting a rule, update docinfo and calculate values
+ * Calculates all the dynamic fields on the rule
+ * @param rule
  */
-Rule.pre('save', function preSave(next) {
-  const rule = this;
-  const now = new Date().toISOString();
-
-  // Update doc info
-  rule.set('docinfo.updatedAt', now);
-  if (!rule.get('docinfo.createdAt')) {
-    rule.set('docinfo.createdAt', now);
-  }
-
+const validateRule = (rule) => {
   // Upwards movement
   if (rule.status === 'bought' && (rule.high < rule.price || rule.high === 0)) {
     rule.high = rule.price;
@@ -91,8 +83,28 @@ Rule.pre('save', function preSave(next) {
     rule.limitPrice = rule.low + (rule.low * rule.limitPerc / 100);
     rule.limitPrice = Utils.precisionRound(rule.limitPrice, 2);
   }
+};
+
+/**
+ * Before persisting a rule, update docinfo
+ */
+Rule.pre('save', function preSave(next) {
+  const rule = this;
+  const now = new Date().toISOString();
+
+  // Update doc info
+  rule.set('docinfo.updatedAt', now);
+  if (!rule.get('docinfo.createdAt')) {
+    rule.set('docinfo.createdAt', now);
+  }
+
+  // Calculate fields
+  validateRule(rule);
 
   next();
 });
 
-module.exports = mongoose.model('Rule', Rule);
+module.exports = {
+  Rule: mongoose.model('Rule', Rule),
+  validateRule
+};
