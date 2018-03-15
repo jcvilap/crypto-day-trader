@@ -4,37 +4,38 @@
 ## Milestones
 #### Setup
 - [x] Set up a Node server and deploy it to Heroku
-- [ ] Setup a Mongo instance in mLab and connect to it from Node
+- [x] Setup a Mongo instance in mLab and connect to it from Node
 - [ ] Deploy Client app to Surge.sh and point server calls to server's APIs
+
 #### Server
 - [x] Connect to GDAX sandboxes for development and production environment 
 - [x] Handle security based on GDAX/Coinbase account
 - [x] Listen to changes on crypto-currencies
 - [x] Hold feeds in a local data structure
-- [ ] Fetch user account info from GDAX
-- [ ] Define `Rule` class
-- [ ] Fetch user `rules` from database
-- [ ] Enable Buy/Sell, Taker/Maker actions based
-- [ ] Perform transactions based on `rules`
-- [ ] Store transactions in database
+- [x] Fetch user account info from GDAX
+- [x] Define `Rule` class
+- [x] Fetch user `rules` from database
+- [x] Enable Buy/Sell, Taker/Maker actions based
+- [x] Perform transactions based on `rules`
 - [ ] Expose a REST API to fetch user information, performance and any stored transaction(mode to come here...)
 - [ ] Expose a WebSocket API to fetch feeds on both user performance and GDAX feeds
 - [ ] Alert via email/SMS/native notifications when a transaction happened
+
 ### Client
 - [ ] Enable new users to enter their Coinbase credentials
 - [ ] Enable user to create or reuse rules. Which will affect the percentage-risk for automated trading
 - [ ] Enable user to start/stop their artificial traders
 - [ ] Connect via Websockets to show transactions realtime
 - [ ] Show history and performance 
+
 ## Docs
 ### 3rd Party APIs
-- Stocks feed: [IEX Trading](https://iextrading.com/developer/)
-- Stocks order management(in the near future...): [Robinhood's Private API](https://api.robinhood.com/)
-- Crypto-currencies feed and order management: [GDAX Websocket Client](https://github.com/coinbase/gdax-node#websocket-client)
+- Crypto-currencies exchange feeds and order management: [GDAX Websocket Client](https://github.com/coinbase/gdax-node#websocket-client)
+
 ### Rules
 I define a `Rule` as a single instance of multiple trading strategies to be used by the `Engine`. Rules can be defined by the user and will be stored in the Mongo instance
-######Attributes // TODO
-## Additional thoughts:
+
+### Additional thoughts:
 - Create both Desktop and Web versions and share the code as much as possible
 - Enable the user to select what currency to watch
 - Enable user settings in general including the above mentioned and also rules created and current rules used
