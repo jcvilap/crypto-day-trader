@@ -4,9 +4,13 @@ const Utils = require('../utils');
 const Rule = new mongoose.Schema({
   /**
    * Product id
-   * @example 'BTC-USD'
+   * @example 'BTC'
    */
-  product_id: String,
+  currency_code: String,
+  /**
+   * Currency PK
+   */
+  currency_id: mongoose.Schema.ObjectId,
   /**
    * Price per bitcoin in USD
    */
@@ -61,6 +65,10 @@ const Rule = new mongoose.Schema({
    * Order id of active BUY or SELL limit order
    */
   limitOrderId: String,
+  /**
+   * Last RSI(14) value recorded
+   */
+  lastRsi: Number
 });
 
 /**

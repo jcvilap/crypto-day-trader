@@ -24,7 +24,7 @@ class App {
   /**
    * After successfully listening on port, start the engine
    */
-  start() {
+  async start() {
     this.server.listen(PORT, () => {
       console.log('Listening to port:', PORT);
       this.engine.start();
