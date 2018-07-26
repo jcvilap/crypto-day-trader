@@ -49,7 +49,7 @@ class Utils {
     const _percentage = Number(percentage);
     const amountToInvest = _balance * (_percentage / 100);
     const result = amountToInvest / _quotePrice;
-    return result.toString();
+    return result.toFixed(8).toString();
   }
 }
 

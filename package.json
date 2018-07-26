@@ -22,7 +22,8 @@
     "mongoose": "^5.0.9",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
-    "technicalindicators": "^1.1.11"
+    "technicalindicators": "^1.1.11",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^1.14.11"

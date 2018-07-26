@@ -1,6 +1,8 @@
 const _ = require('lodash');
+const uuid = require('uuid/v1');
 const rh = require('../services/rbhApiService');
 const Utils = require('../utils');
+
 const TOKEN_REFRESH_INTERVAL = 18000000; // 5h
 const REFRESH_INTERVAL = 10000; // 1m
 const rule = {
@@ -50,8 +52,8 @@ class Engine {
       const lastOrder = orders.length && orders[0];
       const account_id = _.get(lastOrder || holding, 'account_id');
 
-      // Purchase pattern, todo: uncomment below
-      if (usdBalanceAvailable && !investedCurrencyBalance /*&& Utils.calculateRSI(historicals) <= 30*/) {
+      // Purchase pattern - working
+      if (usdBalanceAvailable && !investedCurrencyBalance && Utils.calculateRSI(historicals) <= 30) {
         // If limit price not set or above current price, update it
         if (!this.limitBuyPrice || this.limitBuyPrice > currentPrice) {
           this.limitBuyPrice = currentPrice;
@@ -60,50 +62,58 @@ class Engine {
         else if (this.limitBuyPrice <= currentPrice) {
           // Cancel any pending order
           if (lastOrder.cancel_url) {
+            // todo: before cancelling check if order is outdated before taking out from the queue
             await rh.postWithAuth(lastOrder.cancel_url);
           }
-
-          /**
-           * TODO: Getting the below error. Log into RB and compare request params
-           * 400 - {"price":["Order price has invalid increment."]}
-           * @type {string}
-           */
-          const price = (Number(quote.mark_price) * 0.998).toString();
-
+          // Buy 0.02% higher than market price
+          const price = (Number(quote.mark_price) * 0.9998).toFixed(2).toString();
           // Try buying here
-          const order = await rh.placeOrder({
+          await rh.placeOrder({
             account_id,
             currency_pair_id: this.currencyPair.id,
-            price: price,
+            price,
             quantity: Utils.calculateCurrencyAmount(price, account.sma, rule.portfolioDiversity),
-            ref_id: cryptoAccount.id,
             side: 'buy',
             time_in_force: 'gtc',
-            type: 'limit'
+            type: 'limit',
+            ref_id: uuid()
           });
-
-          console.log(order);
         }
       }
       // Sell pattern todo: finish here
       else if (investedCurrencyBalance) {
-        // Stop loss execution realized gain is less than 1%
-        const realizedGainPerc = 100 * (investedCurrencyBalance / Number(lastOrder.quantity));// todo revisit so that
+        // Cancel any pending order
+        if (lastOrder.cancel_url) {
+          // todo: before cancelling check if order is outdated before taking out from the queue
+          await rh.postWithAuth(lastOrder.cancel_url);
+        }
+        // Stop loss execution, realized gain is less than -1%
+        const realizedGainPerc = 100 * (investedCurrencyBalance / Number(lastOrder.quantity));// todo revisit
         if (realizedGainPerc < -1) {
           // Sell immediate
           await rh.placeOrder({
             account_id,
             currency_pair_id: this.currencyPair.id,
             price: quote.mark_price,
-            quantity: holding.quantity,
-            ref_id: cryptoAccount.id,
+            quantity: investedCurrencyBalance,
             side: 'sell',
             time_in_force: 'gtc',
-            type: 'limit'
+            type: 'limit',
+            ref_id: uuid()
           });
         } else if (realizedGainPerc > 1) {
-          // Set limitSell limit
-
+          // todo Set limitSell limit
+          // At this point, making over 1%, set/update stop loss
+          await rh.placeOrder({
+            account_id,
+            currency_pair_id: this.currencyPair.id,
+            price: quote.mark_price,
+            quantity: investedCurrencyBalance,
+            side: 'sell',
+            time_in_force: 'gtc',
+            type: 'limit',
+            ref_id: uuid()
+          });
         }
       }
     } catch (e) {
