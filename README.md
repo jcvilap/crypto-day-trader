@@ -1,5 +1,8 @@
 # Crypto Day-Trader
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jcvilap/artificial-trader)
+This project is the result of many small failed attempts to build a true commission-free trading engine. It was possible for me to work on it after Robinhood released crypto-currencies support. Although coupled to Robinhood API, this code is easily extendable to any broker or API. 
+
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jcvilap/crypto-day-trader)
 
 ## Milestones
 #### Setup
@@ -7,15 +10,14 @@
 - [x] Setup a Mongo instance in mLab and connect to it from Node
 
 #### Server
-- [ ] Handle security based on Robinhood account
-- [ ] Listen to changes on selected crypto-currency (for now only one currency is supported)
-- [ ] Hold feeds in a local data structure
-- [ ] Fetch user account info from Robinhood
+- [x] Handle security based on Robinhood account
+- [x] Listen to changes on selected crypto-currency (for now only one currency is supported)
+- [x] Fetch user account info from Robinhood
 - [x] Define `Rule` class
 - [x] Fetch user `rules` from database
-- [ ] Enable Buy/Sell actions
-- [ ] Perform analysis based on `rules`
-- [ ] Alert via email/SMS/native notifications when a transaction happened
+- [x] Enable Buy/Sell actions
+- [x] Calculate and incorporate RSI analysis to Buy/Sell strategies
+- [ ] Perform analysis based on `rules` attributes
 
 ### Rules
 I define a `Rule` as a single instance of multiple trading strategies to be used by the `Engine`. Rules can be defined by the user and will be stored in the Mongo instance
