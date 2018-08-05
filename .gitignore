@@ -1,1 +1,2 @@
-src/env.js
+./src/env.js
+./package-lock.json
