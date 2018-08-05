@@ -1,6 +1,6 @@
 const {createServer} = require('http');
 const mongoose = require('mongoose');
-const {PORT, DB} = require('./env');
+const {PORT, DB} = require('../config/env');
 const Engine = require('./engine/Engine');
 
 class App {

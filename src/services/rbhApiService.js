@@ -1,5 +1,5 @@
 const request = require('request-promise-native');
-const { RBH_API_BASE, NUMMUS_RH_API_BASE, RH_CREDENTIALS } = require('../env');
+const { RBH_API_BASE, NUMMUS_RH_API_BASE, RH_CREDENTIALS } = require('../../config/env');
 const common = { json: true };
 const TOKEN_REFRESH_INTERVAL = 18000000;
 
