@@ -1,2 +1,4 @@
-./src/env.js
-./package-lock.json
+src/env.js
+.idea
+.git
+package-lock.json
