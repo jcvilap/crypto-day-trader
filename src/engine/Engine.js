@@ -51,24 +51,40 @@ class Engine {
       const currentPrice = Number(quote.mark_price || 0);
       const lastOrder = orders.length && orders[0];
       const account_id = _.get(lastOrder || holding, 'account_id');
+      const RSI = Utils.calculateRSI(historicals);
 
-      // Purchase pattern - working
-      if (usdBalanceAvailable && !investedCurrencyBalance && Utils.calculateRSI(historicals) <= 30) {
-        // If limit price not set or above current price, update it
-        if (!this.limitBuyPrice || this.limitBuyPrice > currentPrice) {
-          this.limitBuyPrice = currentPrice;
+      // Purchase Pattern
+      if (usdBalanceAvailable && !investedCurrencyBalance) {
+        // Price not longer oversold
+        if (RSI > 30) {
+          this.limitBuyPrice = null;
+          // Cancel order and exit
+          return await this.cancelLastOrder(lastOrder);
         }
-        // If current price went above the limit price it is time to buy
-        else if (this.limitBuyPrice <= currentPrice) {
-          // Cancel any pending order
-          if (lastOrder.cancel_url) {
-            // todo: before cancelling check if order is outdated before taking out from the queue
-            await rh.postWithAuth(lastOrder.cancel_url);
-          }
-          // Buy 0.02% higher than market price
+        // Do nothing as the price has not changed
+        if (this.limitBuyPrice === currentPrice) {
+          return;
+        }
+        // If limit not set, set it and exit until next tick
+        if (!this.limitBuyPrice) {
+          this.limitBuyPrice = currentPrice;
+          return;
+        }
+        // Price went down, RSI is below 30
+        if (this.limitBuyPrice > currentPrice) {
+          // Update limit
+          this.limitBuyPrice = currentPrice;
+          // Cancel last order, exit and wait
+          return await this.cancelLastOrder(lastOrder);
+        }
+        // If current price went above the limit price, this means the ticker
+        // could be trying to go out of oversold, therefore buy here.
+        if (this.limitBuyPrice < currentPrice) {
+          // Cancel possible pending order
+          await this.cancelLastOrder(lastOrder);
+          // Buy 0.02% higher price than market price to get an easier fill
           const price = (Number(quote.mark_price) * 0.9998).toFixed(2).toString();
-          // Try buying here
-          await rh.placeOrder({
+          return await rh.placeOrder({
             account_id,
             currency_pair_id: this.currencyPair.id,
             price,
@@ -119,6 +135,28 @@ class Engine {
     } catch (e) {
       console.error(e.message);
     }
+  }
+
+  async cancelLastOrder(order) {
+    if (_.get(order, 'cancel_url')) {
+      return rh.postWithAuth(order.cancel_url);
+    }
+    return Promise.resolve();
+  }
+
+  async placeNewOrder(account_id, account, rule) {
+    // Buy 0.02% higher price than market price
+    const price = (Number(this.limitBuyPrice) * 0.9998).toFixed(2).toString();
+    return rh.placeOrder({
+      account_id,
+      currency_pair_id: this.currencyPair.id,
+      price,
+      quantity: Utils.calculateCurrencyAmount(price, account.sma, rule.portfolioDiversity),
+      side: 'buy',
+      time_in_force: 'gtc',
+      type: 'limit',
+      ref_id: uuid()
+    });
   }
 }
 
