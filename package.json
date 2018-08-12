@@ -1,6 +1,6 @@
 {
   "name": "crypto-day-trader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minimal trading engine written in NodeJs",
   "main": "server/src",
   "scripts": {
