@@ -1,13 +1,13 @@
-const {createServer} = require('http');
+const { createServer } = require('http');
 const mongoose = require('mongoose');
-const {PORT, DB} = require('../config/env');
+const { PORT, DB } = require('../config/env');
 const Engine = require('./engine/Engine');
 
 class App {
   constructor() {
     this.server = createServer();
     this.engine = new Engine();
-    mongoose.connect(DB);
+    mongoose.connect(DB, { useNewUrlParser: true });
     this.db = mongoose.connection;
 
     this.handleExit = this.handleExit.bind(this);
