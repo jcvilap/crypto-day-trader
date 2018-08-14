@@ -42,7 +42,7 @@ const Rule = new mongoose.Schema({
    * Only triggers a SELL if status is 'bought'
    * @example 1%
    */
-  stopLossPerc: {type: Number, default: .1},
+  sellStrategyPerc: {type: Number, default: .1},
   stopLossPrice: Number,
   /**
    * Lowest value the rule had held since it was sold. This will drive the limit sell price
@@ -80,7 +80,7 @@ const validateRule = (rule) => {
   if (rule.status === 'bought' && (rule.high < rule.price || rule.high === 0)) {
     rule.high = rule.price;
     rule.riskPrice = rule.high - (rule.high * rule.riskPerc / 100);
-    rule.stopLossPrice = rule.high - (rule.high * rule.stopLossPerc / 100);
+    rule.stopLossPrice = rule.high - (rule.high * rule.sellStrategyPerc / 100);
     rule.riskPrice = Utils.precisionRound(rule.riskPrice, 2);
     rule.stopLossPrice = Utils.precisionRound(rule.stopLossPrice, 2);
   }

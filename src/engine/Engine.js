@@ -1,16 +1,18 @@
 const _ = require('lodash');
 const uuid = require('uuid/v1');
 const rh = require('../services/rbhApiService');
+const mailer = require('../services/mailService');
 const Utils = require('../utils');
 
 const TOKEN_REFRESH_INTERVAL = 18000000; // 5h
-const REFRESH_INTERVAL = 10000; // 1m
+const REFRESH_INTERVAL = 10000; // 1s
+
+// Saved in memory for now, will be fetched from DB soon
 const rule = {
   currency_code: 'BTC',
   portfolioDiversity: 1,
-  stopLossPerc: 1,
+  sellStrategyPerc: 1,
 };
-
 
 class Engine {
   constructor() {
@@ -61,16 +63,12 @@ class Engine {
           // Cancel order and exit
           return await this.cancelLastOrder(lastOrder);
         }
-        // Do nothing as the price has not changed
-        if (this.limitBuyPrice === currentPrice) {
-          return;
-        }
         // If limit not set, set it and exit until next tick
         if (!this.limitBuyPrice) {
           this.limitBuyPrice = currentPrice;
           return;
         }
-        // Price went down, RSI is below 30
+        // Price went down and RSI is below 30
         if (this.limitBuyPrice > currentPrice) {
           // Update limit
           this.limitBuyPrice = currentPrice;
@@ -83,80 +81,90 @@ class Engine {
           // Cancel possible pending order
           await this.cancelLastOrder(lastOrder);
           // Buy 0.02% higher price than market price to get an easier fill
-          const price = (Number(quote.mark_price) * 0.9998).toFixed(2).toString();
-          return await rh.placeOrder({
-            account_id,
-            currency_pair_id: this.currencyPair.id,
-            price,
-            quantity: Utils.calculateCurrencyAmount(price, account.sma, rule.portfolioDiversity),
-            side: 'buy',
-            time_in_force: 'gtc',
-            type: 'limit',
-            ref_id: uuid()
-          });
+          const price = (currentPrice * 1.0002).toFixed(2).toString();
+          const quantity = Utils.calculateCurrencyAmount(price, account.sma, rule.portfolioDiversity);
+          return await this.placeOrder(account_id, quantity, price, this.currencyPair.id, 'buy');
         }
       }
-      // Sell pattern todo: finish here
+      // Sell pattern
       else if (investedCurrencyBalance) {
-        // Cancel any pending order
-        if (lastOrder.cancel_url) {
-          // todo: before cancelling check if order is outdated before taking out from the queue
-          await rh.postWithAuth(lastOrder.cancel_url);
+        const purchasePrice = Number(lastOrder.quantity);
+        const overbought = RSI >= 70;
+        // If limit not set, put a stop loss at -.5% of the original purchase price
+        if (!this.limitSellPrice) {
+          this.limitSellPrice = this.getLimitSellPrice(purchasePrice, { initial: true });
+          return;
         }
-        // Stop loss execution, realized gain is less than -1%
-        const realizedGainPerc = 100 * (investedCurrencyBalance / Number(lastOrder.quantity));// todo revisit
-        if (realizedGainPerc < -1) {
-          // Sell immediate
-          await rh.placeOrder({
-            account_id,
-            currency_pair_id: this.currencyPair.id,
-            price: quote.mark_price,
-            quantity: investedCurrencyBalance,
-            side: 'sell',
-            time_in_force: 'gtc',
-            type: 'limit',
-            ref_id: uuid()
-          });
-        } else if (realizedGainPerc > 1) {
-          // todo Set limitSell limit
-          // At this point, making over 1%, set/update stop loss
-          await rh.placeOrder({
-            account_id,
-            currency_pair_id: this.currencyPair.id,
-            price: quote.mark_price,
-            quantity: investedCurrencyBalance,
-            side: 'sell',
-            time_in_force: 'gtc',
-            type: 'limit',
-            ref_id: uuid()
-          });
+        // Cancel a possible pending order
+        await this.cancelLastOrder(lastOrder);
+        // If stop loss hit, sell immediate
+        if (currentPrice <= this.limitSellPrice) {
+          // Sell 0.02% lower price than market price to get an easier fill
+          const price = (currentPrice * 0.9998).toFixed(2).toString();
+          return await this.placeOrder(account_id, investedCurrencyBalance, price, this.currencyPair.id, 'sell');
+        }
+        // Increase limit sell price as the current price increases, do not move it if price decreases
+        const newLimit = this.getLimitSellPrice(currentPrice, { overbought });
+        if (newLimit > this.limitSellPrice) {
+          this.limitSellPrice = newLimit;
         }
       }
-    } catch (e) {
-      console.error(e.message);
+    } catch (error) {
+      console.debug({ error }, 'Error occurred during processFeeds execution');
     }
   }
 
-  async cancelLastOrder(order) {
+  /**
+   * Helper function to cancel last order if it exists
+   * @param order
+   * @returns {Promise.<*>}
+   */
+  cancelLastOrder(order) {
     if (_.get(order, 'cancel_url')) {
+      console.debug(Utils.formatJSON(order, 0), 'Canceling order');
+      mailer.send({ text: `Canceling Order: ${Utils.formatJSON(order)}`})
       return rh.postWithAuth(order.cancel_url);
     }
     return Promise.resolve();
   }
 
-  async placeNewOrder(account_id, account, rule) {
-    // Buy 0.02% higher price than market price
-    const price = (Number(this.limitBuyPrice) * 0.9998).toFixed(2).toString();
-    return rh.placeOrder({
+  /**
+   * Helper function to place an order
+   * @param account_id
+   * @param quantity
+   * @param price
+   * @param currency_pair_id
+   * @param side
+   * @returns {*}
+   */
+  placeOrder(account_id, quantity, price, currency_pair_id, side) {
+    const order = {
       account_id,
-      currency_pair_id: this.currencyPair.id,
+      quantity,
       price,
-      quantity: Utils.calculateCurrencyAmount(price, account.sma, rule.portfolioDiversity),
-      side: 'buy',
+      currency_pair_id,
+      side,
       time_in_force: 'gtc',
       type: 'limit',
       ref_id: uuid()
-    });
+    };
+    console.debug(Utils.formatJSON(order, 0), 'Placing order');
+    mailer.send({ text: `Placed Order: ${Utils.formatJSON(order)}`});
+    return rh.placeOrder(order);
+  }
+
+  /**
+   * Calculates stop loss price based on rule config.
+   * Note: On initialization and oversold indicator the stop loss percentage from the rule is
+   * divided by two in order to minimize risk and maximize profits respectively
+   * @param price
+   * @param options
+   * @returns {number}
+   */
+  getLimitSellPrice(price, options = {}) {
+    const { initial, overbought } = options;
+    const percentage = (initial || overbought) ? rule.sellStrategyPerc / 2 : rule.sellStrategyPerc;
+    return price - (price * (percentage / 100));
   }
 }
 

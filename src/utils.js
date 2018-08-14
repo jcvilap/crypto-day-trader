@@ -51,6 +51,10 @@ class Utils {
     const result = amountToInvest / _quotePrice;
     return result.toFixed(8).toString();
   }
+
+  static formatJSON(json, spaces = 2) {
+    return JSON.stringify(json, null, spaces)
+  }
 }
 
 module.exports = Utils;

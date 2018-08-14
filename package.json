@@ -20,9 +20,9 @@
     "lodash": "^4.17.10",
     "moment": "^2.20.1",
     "mongoose": "^5.0.9",
+    "nodemailer": "^4.6.7",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
-    "technicalindicators": "^1.1.11",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
