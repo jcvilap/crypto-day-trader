@@ -1,5 +1,5 @@
 # Crypto Day-Trader
-This project is the result of many small failed attempts to build a true commission-free trading engine. It was possible for me to work on it after Robinhood released crypto-currencies support. Although coupled to Robinhood API, this code is easily extendable to any broker or API. 
+This project is the result of many small failed attempts to build a true commission-free trading engine. It was possible for me to work on it after Robinhood released crypto-currencies support. Although coupled to Robinhood API, this code is easily extendable to any broker or API.
 
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jcvilap/crypto-day-trader)
@@ -17,7 +17,7 @@ This project is the result of many small failed attempts to build a true commiss
 - [x] Fetch user `rules` from database
 - [x] Enable Buy/Sell actions
 - [x] Calculate and incorporate RSI analysis to Buy/Sell strategies
-- [ ] Perform analysis based on `rules` attributes
+- [x] Perform analysis based on `rules` attributes
 
 ### Rules
 I define a `Rule` as a single instance of multiple trading strategies to be used by the `Engine`. Rules can be defined by the user and will be stored in the Mongo instance

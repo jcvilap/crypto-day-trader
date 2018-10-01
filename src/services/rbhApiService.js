@@ -1,7 +1,8 @@
 const request = require('request-promise-native');
 const { RBH_API_BASE, NUMMUS_RH_API_BASE, RH_CREDENTIALS } = require('../../config/env');
+
 const common = { json: true };
-const TOKEN_REFRESH_INTERVAL = 18000000;
+const TOKEN_REFRESH_INTERVAL = 18000000; // 5h
 
 class RHService {
   constructor() {
@@ -17,7 +18,6 @@ class RHService {
         ...RH_CREDENTIALS,
         grant_type: 'password',
         scope: 'internal',
-        client_id: 'c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS', // not sure if needed
         expires_in: TOKEN_REFRESH_INTERVAL // 5h
       }
     };
